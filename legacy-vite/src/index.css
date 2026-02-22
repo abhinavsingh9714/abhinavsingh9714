@@ -1,0 +1,395 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Typography */
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+/* Motion: opacity + transform only; 120–200ms per spec */
+:root {
+  --motion-enter: 180ms;
+  --motion-press: 75ms;
+  --ease: ease-in-out;
+  --ease-decel: cubic-bezier(0, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-enter: 0ms;
+    --motion-press: 0ms;
+  }
+}
+
+/* Design tokens — light */
+:root {
+  --bg: #FBFAF8;
+  --workspace: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-2: #F5F3EF;
+  --border: #E7E5E4;
+  --text: #0F172A;
+  --text-muted: #475569;
+  --text-subtle: #64748B;
+  --primary: #4F46E5;
+  --primary-weak: #E0E7FF;
+  --accent: #7C3AED;
+  --success: #16A34A;
+  --error: #DC2626;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+  --r-sm: var(--radius-sm);
+  --r-md: var(--radius-md);
+  --r-lg: var(--radius-lg);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-base: 16px;
+  --fs-title: 18px;
+  --fs-h1: 24px;
+  /* Legacy aliases for minimal churn */
+  --color-surface: var(--surface-2);
+  --color-surface-elevated: var(--surface);
+  --color-border: var(--border);
+  --color-border-subtle: var(--surface-2);
+  --color-muted: var(--text-muted);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-subtle);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary);
+  --color-primary-muted: var(--primary-weak);
+  --spacing-unit: 0.25rem;
+  --spacing-section: 1.5rem;
+  --spacing-block: 2rem;
+}
+
+/* Design tokens — dark */
+.dark {
+  --bg: #0B1220;
+  --workspace: #0F172A;
+  --surface: #0F172A;
+  --surface-2: #111C33;
+  --border: #23314D;
+  --text: #E5E7EB;
+  --text-muted: #A1A1AA;
+  --text-subtle: #94A3B8;
+  --primary: #A5B4FC;
+  --primary-weak: #1E2A52;
+  --accent: #C4B5FD;
+  --success: #4ADE80;
+  --error: #F87171;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+  --r-sm: var(--radius-sm);
+  --r-md: var(--radius-md);
+  --r-lg: var(--radius-lg);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-base: 16px;
+  --fs-title: 18px;
+  --fs-h1: 24px;
+  /* Legacy aliases */
+  --color-surface: var(--surface-2);
+  --color-surface-elevated: var(--surface);
+  --color-border: var(--border);
+  --color-border-subtle: var(--surface-2);
+  --color-muted: var(--text-muted);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-subtle);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary);
+  --color-primary-muted: var(--primary-weak);
+}
+
+@layer base {
+  html {
+    height: 100%;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text-subtle);
+    font-size: var(--fs-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color var(--motion-enter) var(--ease), color var(--motion-enter) var(--ease);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  h1 { font-size: var(--fs-h1); font-weight: 700; }
+}
+
+@layer components {
+  .card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  }
+
+  .suggestion-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-6);
+    font-size: var(--fs-sm);
+    line-height: 1.4;
+    color: var(--text);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background-color 120ms var(--ease), border-color 120ms var(--ease), opacity 120ms var(--ease), transform var(--motion-press) var(--ease);
+  }
+  .suggestion-chip:hover {
+    background-color: var(--primary-weak);
+    border-color: var(--border);
+  }
+  .suggestion-chip:active {
+    transform: translateY(1px);
+  }
+  .suggestion-chip:focus {
+    outline: none;
+  }
+  .suggestion-chip:focus-visible {
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+  }
+}
+
+#root {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Floating workspace: single container with warm background behind */
+.workspace {
+  background-color: var(--workspace);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+.dark .workspace {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Resume card: outlined, shadow on hover only (150–200ms), clear focus/hover */
+.resume-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 1rem;
+  color: inherit;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  cursor: default;
+  transition: box-shadow 180ms var(--ease), opacity var(--motion-enter) var(--ease), transform var(--motion-press) var(--ease);
+}
+.resume-card:hover {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+}
+.resume-card:active {
+  transform: translateY(1px);
+}
+.resume-card:focus {
+  outline: none;
+}
+.resume-card:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+}
+.resume-card--highlight {
+  animation: card-highlight-glow 1.2s var(--ease) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .resume-card:hover {
+    transition: none;
+  }
+  .resume-card:active {
+    transform: none;
+  }
+}
+
+@keyframes card-highlight-glow {
+  0% {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resume-card--highlight {
+    animation-duration: 0.01ms;
+  }
+}
+
+/* In-card expand for more bullets */
+.resume-card-more {
+  display: inline-block;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity var(--motion-enter) var(--ease);
+}
+
+/* Tag chips inside resume cards: smaller than suggestion chips */
+.resume-card-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: var(--text-muted);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* Chat message bubbles; message enter: opacity + translateY(4px) 160–200ms decel */
+.chat-bubble {
+  border-radius: var(--radius-lg);
+  transition: opacity var(--motion-enter) var(--ease-decel), transform var(--motion-enter) var(--ease-decel);
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-bubble {
+    transition: opacity var(--motion-enter) var(--ease);
+  }
+}
+.chat-bubble--assistant {
+  max-width: min(100%, 65ch);
+  padding: var(--space-4) 1.25rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.04);
+}
+.chat-bubble--assistant .chat-bubble__content {
+  color: var(--text-subtle);
+  line-height: 1.55;
+}
+.chat-bubble--assistant .chat-bubble__content ul {
+  margin-top: 0.5rem;
+  padding-left: 0.25rem;
+  list-style-position: outside;
+}
+.chat-bubble--assistant .chat-bubble__content li {
+  margin-top: 0.35rem;
+}
+.chat-bubble--assistant .chat-bubble__content li:first-child {
+  margin-top: 0;
+}
+.chat-bubble--user {
+  max-width: min(70%, 28rem);
+  padding: 0.75rem 1.25rem;
+  background-color: var(--primary);
+  color: var(--surface);
+  border: none;
+  box-shadow: none;
+}
+
+/* Citation chips: smaller than suggestion chips, clearly clickable */
+.citation-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+  color: var(--text-subtle);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 120ms var(--ease), color 120ms var(--ease), opacity 120ms var(--ease), transform var(--motion-press) var(--ease);
+}
+.citation-chip:hover {
+  background-color: var(--primary-weak);
+  border-color: var(--border);
+  color: var(--text);
+}
+.citation-chip:active {
+  transform: translateY(1px);
+}
+.citation-chip:focus {
+  outline: none;
+}
+.citation-chip:focus-visible {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+}
+
+/* Motion utilities: opacity + transform only */
+.transition-motion {
+  transition: opacity var(--motion-enter) var(--ease), transform var(--motion-enter) var(--ease);
+}
+
+/* Visible scrollbars when content scrolls (no overlay/hidden) */
+.scroll-pane {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.scroll-pane::-webkit-scrollbar {
+  width: 8px;
+  height: 0;
+}
+.scroll-pane::-webkit-scrollbar-track {
+  background: var(--surface-2);
+}
+.scroll-pane::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-pill);
+}
+.scroll-pane::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Pipeline status: 3-step capsule, Engineer details collapsible */
+.pipeline-capsule {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background-color: var(--surface-2);
+}
+
+@layer utilities {
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-offset-background;
+  }
+
+  .transition-default {
+    transition-duration: var(--motion-enter);
+    transition-timing-function: var(--ease);
+    transition-property: opacity, transform, color, background-color, border-color;
+  }
+}

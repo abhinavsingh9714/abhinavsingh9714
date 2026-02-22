@@ -1,0 +1,29 @@
+# ── Next.js ───────────────────────────────────────────────────────────────────
+.next/
+out/
+
+# ── Build artefacts ───────────────────────────────────────────────────────────
+dist/
+build/
+
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Environment variables ─────────────────────────────────────────────────────
+# .env.local is intentionally excluded — contains secrets + mode switches.
+# Commit .env.example instead (see README).
+.env.local
+.env.*.local
+.env
+
+# ── TypeScript incremental build cache ────────────────────────────────────────
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# ── OS / editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+
+# ── Vercel deployment ────────────────────────────────────────────────────────
+.vercel/

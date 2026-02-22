@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        var stored = localStorage.getItem('portfolio-theme');
+        var dark = stored === 'dark' || (stored !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      })();
+    </script>
+    <title>Abhinav Singh Chauhan — Machine Learning Engineer</title>
+    <meta name="description" content="Machine Learning Engineer with 4+ years building production GenAI and applied ML. Portfolio with recruiter-first resume chat and cited answers from experience, projects, and skills." />
+    <meta property="og:title" content="Abhinav Singh Chauhan — Machine Learning Engineer" />
+    <meta property="og:description" content="Machine Learning Engineer with 4+ years building production GenAI and applied ML. Portfolio with recruiter-first resume chat and cited answers." />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
