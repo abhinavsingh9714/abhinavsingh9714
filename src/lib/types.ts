@@ -13,7 +13,19 @@ export interface ResumeCard {
 export interface Citation {
   cardId: string
   chunkId?: string
+  docId?: string
+  title?: string
+  projectId?: string
   score?: number
+}
+
+export interface RetrievalChunk {
+  chunkId: string
+  docId: string
+  title: string
+  projectId?: string
+  score: number
+  snippet: string
 }
 
 export type ResumeCardsBySection = Record<ResumeSection, ResumeCard[]>

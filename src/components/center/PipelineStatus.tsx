@@ -9,8 +9,9 @@
  *  • Citations list (cardId + score) when present and engineerView is on
  */
 
-import { useAppStore } from '@/store'
-import type { Msg }    from '@/lib/chatReducer'
+import { useAppStore }       from '@/store'
+import type { Msg }           from '@/lib/chatReducer'
+import type { RetrievalChunk } from '@/lib/chatReducer'
 
 const STAGES = ['embedding', 'retrieving', 'generating'] as const
 type Stage   = (typeof STAGES)[number]
@@ -32,7 +33,7 @@ interface Props {
 export function PipelineStatus({ message }: Props) {
   const engineerView = useAppStore((s) => s.engineerView)
 
-  const { stage, metrics, citations } = message
+  const { stage, metrics, citations, retrievalChunks } = message
   if (!stage || stage === 'error') return null
 
   const isComplete = stage === 'complete'
@@ -143,6 +144,11 @@ export function PipelineStatus({ message }: Props) {
         )}
       </div>
 
+      {/* ── Retrieved chunks (engineer view only) ──────────────────────── */}
+      {engineerView && retrievalChunks && retrievalChunks.length > 0 && (
+        <RetrievedChunksPanel chunks={retrievalChunks} />
+      )}
+
       {/* ── Citations (engineer view only) ─────────────────────────────── */}
       {engineerView && isComplete && citations && citations.length > 0 && (
         <div
@@ -177,7 +183,7 @@ export function PipelineStatus({ message }: Props) {
               }}
             >
               <span style={{ color: 'var(--accent)', fontWeight: 500 }}>
-                {c.cardId}
+                {c.chunkId ?? c.cardId}
               </span>
               <span
                 style={{
@@ -189,12 +195,121 @@ export function PipelineStatus({ message }: Props) {
                   fontSize:        '10px',
                 }}
               >
-                {(c.score * 100).toFixed(0)}%
+                {((c.score ?? 0) * 100).toFixed(0)}%
               </span>
             </div>
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+// ── Retrieved Chunks sub-panel ────────────────────────────────────────────────
+
+function RetrievedChunksPanel({ chunks }: { chunks: RetrievalChunk[] }) {
+  return (
+    <div
+      style={{
+        display:       'flex',
+        flexDirection: 'column',
+        gap:           '4px',
+        paddingTop:    '0.375rem',
+        borderTop:     '1px solid var(--border)',
+      }}
+    >
+      <span
+        style={{
+          fontSize:      '10px',
+          fontWeight:    600,
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
+          color:         'var(--text-subtle)',
+          marginBottom:  '2px',
+        }}
+      >
+        Retrieved Chunks
+      </span>
+      {chunks.map((c) => (
+        <div
+          key={c.chunkId}
+          style={{
+            display:         'flex',
+            flexDirection:   'column',
+            gap:             '2px',
+            padding:         '4px 6px',
+            backgroundColor: 'var(--surface)',
+            border:          '1px solid var(--border)',
+            borderRadius:    'var(--radius-sm)',
+          }}
+        >
+          <div
+            style={{
+              display:        'flex',
+              justifyContent: 'space-between',
+              alignItems:     'center',
+              gap:            '0.5rem',
+            }}
+          >
+            <span
+              style={{
+                color:        'var(--accent)',
+                fontWeight:   500,
+                fontSize:     '10px',
+                flex:         '1 1 0',
+                overflow:     'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace:   'nowrap',
+              }}
+              title={c.chunkId}
+            >
+              {c.chunkId}
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+              {c.projectId && (
+                <span
+                  style={{
+                    fontSize:        '9px',
+                    padding:         '1px 4px',
+                    borderRadius:    'var(--radius-sm)',
+                    backgroundColor: 'var(--accent-weak)',
+                    color:           'var(--accent)',
+                    border:          '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
+                  }}
+                >
+                  project
+                </span>
+              )}
+              <span
+                style={{
+                  color:           c.score >= 0.5 ? 'var(--success)' : 'var(--text-subtle)',
+                  backgroundColor: 'var(--surface)',
+                  border:          '1px solid var(--border)',
+                  borderRadius:    'var(--radius-sm)',
+                  padding:         '1px 5px',
+                  fontSize:        '10px',
+                  fontWeight:      600,
+                }}
+              >
+                {(c.score * 100).toFixed(0)}%
+              </span>
+            </span>
+          </div>
+          <span
+            style={{
+              fontSize:    '10px',
+              color:       'var(--text-muted)',
+              lineHeight:  1.4,
+              overflow:    'hidden',
+              display:     '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            } as React.CSSProperties}
+          >
+            {c.snippet}
+          </span>
+        </div>
+      ))}
     </div>
   )
 }

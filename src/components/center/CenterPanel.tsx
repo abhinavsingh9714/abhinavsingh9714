@@ -4,6 +4,7 @@ import { useEffect }        from 'react'
 import { HeroSection }      from './sections/HeroSection'
 import { TimelineSection }  from './sections/TimelineSection'
 import { ProjectsSection }  from './sections/ProjectsSection'
+import { WritingSection }   from './sections/WritingSection'
 import { SkillsSection }    from './sections/SkillsSection'
 import { useCenterPanel }   from '@/components/shell/CenterPanelContext'
 import { usePortfolioStore } from '@/store/portfolioStore'
@@ -17,6 +18,7 @@ import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
  * #story        → HeroSection    (nav pill "Story")
  * #timeline     → TimelineSection
  * #projects     → ProjectsSection (nav pill "Projects")
+ * #writing      → WritingSection  (nav pill "Writing")
  * #skills       → SkillsSection
  * #chat-anchor  → reserved for ChatPanel (nav pill "Chat")
  *
@@ -85,45 +87,11 @@ export function CenterPanel() {
       <HeroSection />
       <TimelineSection />
       <ProjectsSection />
+      <WritingSection />
       <SkillsSection />
 
-      {/* ── Chat anchor — placeholder for the upcoming ChatPanel ── */}
-      <section
-        id="chat-anchor"
-        aria-label="Chat"
-        style={{
-          padding:         '3rem 2rem',
-          minHeight:       '50vh',
-          display:         'flex',
-          flexDirection:   'column',
-          alignItems:      'center',
-          justifyContent:  'center',
-          gap:             '0.75rem',
-          color:           'var(--text-subtle)',
-          textAlign:       'center',
-        }}
-      >
-        <div
-          style={{
-            width:           '48px',
-            height:          '48px',
-            borderRadius:    'var(--radius-lg)',
-            backgroundColor: 'var(--accent-weak)',
-            display:         'flex',
-            alignItems:      'center',
-            justifyContent:  'center',
-            fontSize:        '22px',
-          }}
-        >
-          ✦
-        </div>
-        <p className="font-heading" style={{ fontSize: '1.15rem', color: 'var(--text)' }}>
-          Chat coming soon
-        </p>
-        <p className="font-body" style={{ fontSize: '13px', maxWidth: '36ch' }}>
-          RAG-powered Q&amp;A over the full resume — ask about experience, projects, or skills.
-        </p>
-      </section>
+      {/* ── Chat anchor (kept for nav scroll target) ── */}
+      <div id="chat-anchor" style={{ height: 0, overflow: 'hidden' }} aria-hidden />
     </div>
   )
 }

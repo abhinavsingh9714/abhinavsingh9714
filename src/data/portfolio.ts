@@ -15,8 +15,8 @@ export interface HeroData {
 }
 
 export const hero: HeroData = {
-  name:     'Abhinav Singh',
-  tagline:  'I build ML systems that think, retrieve, and explain.',
+  name:     'Abhinav Singh Chauhan',
+  tagline:  'I build ML systems that think, retrieve, execute, and explain.',
   intro:    'ML Engineer focused on production GenAI, RAG pipelines, and multimodal inference. Currently: M.S. Data Science at UMD.',
   location: 'College Park, MD',
   status:   'Open to full-time ML roles · May 2026',
@@ -45,12 +45,12 @@ export interface TimelineNode {
 export const timeline: TimelineNode[] = [
   {
     id:    'tl-taai',
-    year:  '2025 – now',
+    year:  'Aug 2025 – now',
     title: 'Founding ML Engineer',
     org:   'TAAI Labs',
     kind:  'work',
     bullets: [
-      'Built Neuron — multi-tenant GenAI platform on AWS with RAG over 1 000+ docs.',
+      'Built Neuron — multi-tenant GenAI platform on AWS with RAG over 1,000+ docs.',
       'Infrastructure graphing from Terraform cut architecture review time by 90%.',
       'Fine-tuned Qwen for NIST-compliant Q&A; fully grounded, audit-ready responses.',
     ],
@@ -58,18 +58,44 @@ export const timeline: TimelineNode[] = [
     prompt: 'Tell me more about the Neuron platform you built at TAAI Labs — the RAG architecture and how you handled multi-tenancy.',
   },
   {
+    id:    'tl-ta-umd',
+    year:  'Sep 2025 – now',
+    title: 'Teaching Assistant',
+    org:   'University of Maryland',
+    kind:  'work',
+    bullets: [
+      'Supporting graduate-level "Principles of Data Science" course.',
+      'Weekly office hours, grading assignments, and collaborating with faculty on course materials.',
+    ],
+    tags: ['Data Science', 'Machine Learning', 'Teaching'],
+    prompt: 'What are your responsibilities as a Teaching Assistant at UMD? What topics does the Principles of Data Science course cover?',
+  },
+  {
+    id:    'tl-doquantum',
+    year:  'Mar 2025 – Aug 2025',
+    title: 'Quantum ML Researcher',
+    org:   'Do Quantum',
+    kind:  'work',
+    bullets: [
+      'Redesigning classical ML algorithms for quantum hardware.',
+      'Benchmarking quantum ML workflows to assess scalability and limitations.',
+    ],
+    tags: ['Quantum Computing', 'Machine Learning', 'Research'],
+    prompt: 'What does your Quantum ML research at Do Quantum involve? How are you adapting classical ML algorithms for quantum hardware?',
+  },
+  {
     id:    'tl-edtech',
     year:  'Jun – Aug 2025',
     title: 'ML Intern',
-    org:   'EdTech Tulna · IIT Delhi',
+    org:   'EdTech TULNA',
     kind:  'work',
     bullets: [
-      'LangGraph multi-agent system evaluated videos on 20+ learning indicators.',
-      '95% reduction in manual review time with evidence-backed structured reports.',
-      '90%+ alignment with expert human evaluations via LLM critics + conflict-resolution agent.',
+      'LangGraph multi-agent system evaluated educational videos on 20+ learning indicators.',
+      '95% reduction in manual review time (4 hrs → <10 min) with evidence-backed docx/pdf reports.',
+      'Evidence-planning agent with FFmpeg automated screenshot extraction for timestamp-linked visual proof; boosted evaluator trust by 25%.',
     ],
-    tags: ['LangGraph', 'LLM', 'Multi-Agent', 'LangChain'],
-    prompt: 'How did the LangGraph multi-agent system at EdTech Tulna work? What was the conflict-resolution strategy between agents?',
+    tags: ['LangGraph', 'LLM', 'Multi-Agent', 'LangChain', 'FFmpeg'],
+    prompt: 'How did the LangGraph multi-agent system at EdTech TULNA work? What was the conflict-resolution strategy between agents?',
   },
   {
     id:    'tl-umd',
@@ -86,16 +112,31 @@ export const timeline: TimelineNode[] = [
   },
   {
     id:    'tl-kradlejoy',
-    year:  'Jan – Aug 2024',
-    title: 'Founding ML Engineer',
+    year:  'Apr – Aug 2024',
+    title: 'ML Intern',
     org:   'KradleJoy Pvt Ltd',
     kind:  'work',
     bullets: [
-      'Real-time multimodal baby monitoring: YOLOv8 + YAMNet on AWS EC2, sub-2 s latency.',
-      'Sequential pose analysis for sleep tracking under 80–90% occlusion.',
+      'Real-time multimodal baby monitoring: Detectron2 + YOLOv8 + YAMNet on AWS EC2.',
+      'Sleep tracking via MediaPipe Pose Detection under 80% coverage; cry detection at sub-13 ms.',
+      'FastAPI + Docker pipeline with RetinaFace-based face blurring for privacy.',
     ],
-    tags: ['Computer Vision', 'YOLOv8', 'PyTorch', 'AWS', 'Deep Learning'],
-    prompt: 'How did you achieve sub-2 s latency for real-time baby monitoring at KradleJoy? What were the biggest challenges with YOLOv8 under heavy occlusion?',
+    tags: ['Computer Vision', 'YOLOv8', 'Detectron2', 'MediaPipe', 'PyTorch', 'AWS', 'Docker'],
+    prompt: 'How did you build the real-time baby monitoring system at KradleJoy? What were the biggest challenges with occlusion and latency?',
+  },
+  {
+    id:    'tl-mdi',
+    year:  'Jan – Jul 2024',
+    title: 'Research Associate',
+    org:   'Management Development Institute, Gurgaon',
+    kind:  'work',
+    bullets: [
+      'Co-authored a published book on AI-driven CRM covering marketing and sales automation.',
+      'Built recommendation systems and churn prediction models for CRM optimization.',
+      'Researched AI governance frameworks for India\'s National Security Council Secretariat (NSCS), analyzing 50+ cybersecurity threats.',
+    ],
+    tags: ['AI Research', 'Machine Learning', 'NLP', 'AI Governance'],
+    prompt: 'What was the AI governance research you did for India\'s NSCS? How did you approach comparing frameworks across the EU, UK, USA, and Australia?',
   },
   {
     id:    'tl-iisc',
@@ -116,11 +157,37 @@ export const timeline: TimelineNode[] = [
     org:   'Self-employed',
     kind:  'work',
     bullets: [
-      'Visual similarity engine: CLIP + FAISS over 60 K images in <50 ms.',
-      'Sentiment pipeline: PySpark + fine-tuned BERT, 85%+ accuracy at sub-second latency.',
+      'Visual similarity engine: CLIP + FAISS over 60K images in <50 ms.',
+      'Sentiment pipeline: PySpark + fine-tuned BERT, 85%+ accuracy at sub-second latency via FastAPI.',
     ],
     tags: ['CLIP', 'FAISS', 'Vector Search', 'PySpark', 'NLP', 'PyTorch'],
     prompt: 'Walk me through the visual similarity engine you built as a freelancer — the CLIP + FAISS pipeline and how you got it under 50 ms.',
+  },
+  {
+    id:    'tl-rapidglobal',
+    year:  'Oct 2019 – Jul 2021',
+    title: 'Software Consultant',
+    org:   'Rapid Global School',
+    kind:  'work',
+    bullets: [
+      'Built Java Spring Boot REST API for student profile, academic records, and attendance management across 2,000+ students.',
+      'Established CI/CD pipeline, reducing deployment time and improving system reliability.',
+    ],
+    tags: ['Java', 'Spring Boot', 'PostgreSQL', 'REST', 'CI/CD'],
+    prompt: 'What did you build at Rapid Global School? How did the CI/CD pipeline improve the deployment workflow?',
+  },
+  {
+    id:    'tl-exicom',
+    year:  'Jan – Sep 2019',
+    title: 'Graduate Engineering Trainee',
+    org:   'Exicom',
+    kind:  'work',
+    bullets: [
+      'Embedded OCPP system connecting EV chargers to a central server across 21,000+ users in India and South Asia.',
+      'Implemented finite state machine for real-time charger state management and status updates.',
+    ],
+    tags: ['Embedded Systems', 'OCPP', 'EV', 'C/C++', 'CI/CD'],
+    prompt: 'What was the embedded OCPP system you built at Exicom? How did you handle real-world challenges like internet interruptions?',
   },
   {
     id:    'tl-thapar',
@@ -147,50 +214,103 @@ export interface ProjectCard {
   bullets:  string[]
   tags:     string[]
   links?:   { label: string; href: string }[]
+  /** Pre-filled chat prompt for the "Ask about this" CTA */
+  prompt?:  string
 }
 
 export const featuredProjects: ProjectCard[] = [
   {
-    id:      'project-neuron',
-    title:   'Neuron — GenAI Platform',
-    org:     'TAAI Labs',
-    period:  '2025 – present',
-    outcome: '**90% faster** architecture reviews; **1 000+ docs** indexed for enterprise RAG Q&A.',
-    bullets: [
-      'Multi-tenant AWS platform: DynamoDB · Textract · Lambda · Step Functions · Pinecone.',
-      'Terraform → dependency graph service surfaces security risks before code review.',
-      'Qwen-based NIST-compliant Q&A model fully grounded via RAG — zero hallucination policy.',
-    ],
-    tags:  ['GenAI', 'RAG', 'AWS', 'Pinecone', 'Qwen'],
-    links: [{ label: 'Private', href: '#' }],
-  },
-  {
     id:      'project-jira-agent',
-    title:   'Intelligent Jira Ticket Agent',
-    org:     'Personal',
+    title:   'Intelligent Jira Backlog Generator',
+    org:     'University of Maryland',
     period:  'Jun – Jul 2025',
-    outcome: '**70% reduction** in sprint-planning overhead via LLM-driven ticket generation.',
+    outcome: '**70% reduction** in planning overhead — natural language ideas → full Jira backlogs (Initiatives → Epics → Stories → Tasks).',
     bullets: [
-      'LangChain planning agent converts product descriptions into schema-enforced Pydantic Jira tickets.',
-      'Real-time Jira Cloud integration — tickets created, linked, and labelled autonomously.',
-      'Structured output validation prevents malformed payloads reaching the API.',
+      'LLM planning agent (GPT-4o, Gemini 2.5) with LangChain converts product descriptions into structured, schema-enforced Pydantic output.',
+      'Dynamic Jira Cloud integration via REST API v3 — tickets created, linked, and labelled autonomously.',
+      'Human-in-the-loop editing via Streamlit; containerised with Docker for seamless team adoption.',
     ],
-    tags:  ['LLM', 'LangChain', 'Pydantic', 'Jira API'],
-    links: [{ label: 'GitHub', href: 'https://github.com/abhinavsingh9714' }],
+    tags:  ['LLM', 'GPT-4o', 'Gemini', 'LangChain', 'Pydantic', 'Jira API', 'Docker', 'Streamlit'],
+    links: [{ label: 'GitHub', href: 'https://github.com/abhinavsingh9714/JIRA-agent' }],
+    prompt: 'Walk me through the Intelligent Jira Backlog Generator — how does the LangChain planning agent decompose a product idea into Initiatives, Epics, Stories, and Tasks? How is schema enforcement via Pydantic used?',
   },
   {
     id:      'project-slomo',
-    title:   'Slo-Mo Video Generation',
-    org:     'Academic · UMD',
+    title:   'Slo-Mo Video Generation with GANs',
+    org:     'University of Maryland',
     period:  'Apr – Jun 2025',
     outcome: '**8× frame-rate uplift** (60 → 480 fps) via learned intermediate-frame synthesis.',
     bullets: [
-      'U-Net frame interpolation inserts 2–8 synthetic frames per 0.9 s clip.',
-      'Trained on sports and nature video; handles unpredictable fast motion events.',
+      'U-Net-based frame interpolation inserts 2–8 synthetic frames per 0.9 s clip for seamless playback of fast, unpredictable motion.',
+      'Trained on sports and nature video; handles challenging motion events where traditional interpolation breaks down.',
       'Evaluated with SSIM and LPIPS; outperforms bilinear baseline by 14% SSIM.',
     ],
-    tags:  ['U-Net', 'GAN', 'PyTorch', 'Video ML'],
+    tags:  ['GANs', 'U-Net', 'Frame Interpolation', 'PyTorch', 'Video ML'],
     links: [{ label: 'GitHub', href: 'https://github.com/abhinavsingh9714' }],
+    prompt: 'Explain the Slo-Mo Video Generation project — how does the U-Net model synthesize intermediate frames and what was the evaluation methodology using SSIM and LPIPS?',
+  },
+  {
+    id:      'project-multistock',
+    title:   'Multi-Stock Price Prediction',
+    org:     'University of Maryland',
+    period:  'Nov 2024 – Jan 2025',
+    outcome: '**$2.38 avg deviation** from actual closing prices across **24 major stocks** via LSTM + embedding fusion.',
+    bullets: [
+      'Dual-input architecture combining LSTM temporal outputs with stock-specific identifier embeddings to capture both sequential patterns and individual stock behaviour.',
+      'Trained on 60-day historical windows using key technical indicators: RSI, SMA20, and MACD.',
+      'Modular design supports plug-in of new stocks and indicators without re-engineering.',
+    ],
+    tags:  ['LSTM', 'Deep Learning', 'Embeddings', 'Time Series', 'Finance', 'PyTorch'],
+    links: [{ label: 'GitHub', href: 'https://github.com/abhinavsingh9714' }],
+    prompt: 'How does the Multi-Stock Price Prediction model work? Explain the dual-input LSTM + embedding fusion architecture and how technical indicators like RSI, SMA20, and MACD are used.',
+  },
+]
+
+// ─── Writing ──────────────────────────────────────────────────────────────────
+
+export interface WritingPost {
+  id:       string
+  title:    string
+  hook:     string
+  date:     string
+  readTime: string
+  href:     string
+  /** Platform the post was published on — drives badge label and icon */
+  kind:     'medium' | 'linkedin'
+  /** Pre-filled chat prompt for the "Ask about this" CTA */
+  prompt?:  string
+}
+
+export const featuredPosts: WritingPost[] = [
+  {
+    id:       'post-visual-search',
+    title:    'Intricacies of Visual Search Systems',
+    hook:     'Ever wondered how Google Lens recognizes your sneakers faster than your sneakerhead friend? A deep dive into CBIR, CLIP embeddings, ANN search, multi-modal fusion, and the real-world engineering that makes visual search fast, accurate, and scalable.',
+    date:     'Apr 30, 2025',
+    readTime: '10 min read',
+    href:     'https://medium.com/@sabhinavofficial/intricacies-of-visual-search-systems-af337e42d68d',
+    kind:     'medium',
+    prompt:   'You wrote about visual search systems — what\'s the core engineering challenge in building a CBIR system with CLIP embeddings and ANN search? How does your FAISS-based visual similarity engine relate to what you described in that article?',
+  },
+  {
+    id:       'post-pinterest-pinlanding',
+    title:    'Production ML Is About Constraining Models, Not Empowering Them',
+    hook:     'Pinterest\'s PinLanding turns billions of products into shopping collections using multimodal AI — but the real lesson isn\'t model capability. It\'s how they built a compression layer to stop unbounded model output from breaking downstream systems.',
+    date:     '2w ago',
+    readTime: '2 min read',
+    href:     'https://www.linkedin.com/posts/abhinavsingh9714_mlplatform-productionml-genaireliability-activity-7424451682757107712-S-UM?utm_source=share&utm_medium=member_desktop&rcm=ACoAAB-SrcQBrkjsMMEUH8j0iJupLU5Dw2LA7Ug',
+    kind:     'linkedin',
+    prompt:   'You wrote about constraining models in production ML — how does that philosophy show up in your own work? For example, how did you handle output reliability in the multi-agent EdTech evaluation system or the Neuron RAG platform?',
+  },
+  {
+    id:       'post-netflix-knowledge-graph',
+    title:    'Most ML Failures Don\'t Start at the Model — They Start in How Data Is Defined',
+    hook:     'Netflix\'s Entertainment Knowledge Graph looks like a graph/ontology problem. Underneath, it\'s about keeping data meaning consistent across hundreds of teams — and why schema evolution, lineage, and data trust matter more than model architecture.',
+    date:     '3w ago',
+    readTime: '2 min read',
+    href:     'https://www.linkedin.com/posts/abhinavsingh9714_mlplatform-productionml-datareliability-activity-7422685034144329728-19SM?utm_source=share&utm_medium=member_desktop&rcm=ACoAAB-SrcQBrkjsMMEUH8j0iJupLU5Dw2LA7Ug',
+    kind:     'linkedin',
+    prompt:   'Your post argues ML failures start with data definition — how did you apply that principle in your own work, like the knowledge ingestion pipeline at TAAI Labs or structuring data for the Jira agent?',
   },
 ]
 

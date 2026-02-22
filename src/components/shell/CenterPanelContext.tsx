@@ -2,13 +2,14 @@
 
 import { createContext, useContext, useRef, useCallback, type RefObject } from 'react'
 
-export type NavSection = 'projects' | 'story' | 'chat'
+export type NavSection = 'projects' | 'story' | 'writing' | 'chat'
 
 /** Map from NavSection to the element id used in CenterPanel */
 const SECTION_IDS: Record<NavSection, string> = {
-  projects:  'projects',
-  story:     'story',
-  chat:      'chat-anchor',
+  projects: 'projects',
+  story:    'story',
+  writing:  'writing',
+  chat:     'chat-anchor',
 }
 
 interface CenterPanelContextValue {

@@ -6,6 +6,7 @@ import { skills }            from '@/data/portfolio'
 import type { SkillKind }   from '@/data/portfolio'
 import { Tag }               from '@/components/common/Tag'
 import { usePortfolioStore } from '@/store/portfolioStore'
+import { useBreakpoint }     from '@/lib/useBreakpoint'
 
 // ── Filter tabs ───────────────────────────────────────────────────────────────
 type Filter = 'all' | SkillKind
@@ -22,6 +23,10 @@ export function SkillsSection() {
 
   // REQ-CPI-3: drive global highlight from the click-selected tag too
   const setActiveHighlightTag = usePortfolioStore((s) => s.setActiveHighlightTag)
+  const setChatInputDraft     = usePortfolioStore((s) => s.setChatInputDraft)
+  const setPendingAutoSubmit  = usePortfolioStore((s) => s.setPendingAutoSubmit)
+  const setChatOpenMobile     = usePortfolioStore((s) => s.setChatOpenMobile)
+  const { isNarrow }          = useBreakpoint()
 
   const grouped = useMemo(() => {
     const filtered = activeFilter === 'all'
@@ -40,9 +45,15 @@ export function SkillsSection() {
   const handleTagClick = (label: string) => {
     const next = activeTag === label ? null : label
     setActiveTag(next)
-    // Keep the global highlight in sync with the locally-selected tag so
-    // other panels reflect the selection even after the pointer leaves.
     setActiveHighlightTag(next)
+
+    // Fire the chatbot automatically with a question about this skill
+    if (next) {
+      const prompt = `Tell me about Abhinav's experience with ${next} — where has he used it and what did he build?`
+      setChatInputDraft(prompt)
+      setPendingAutoSubmit(true)
+      if (isNarrow) setChatOpenMobile(true)
+    }
   }
 
   return (
@@ -50,7 +61,7 @@ export function SkillsSection() {
       id="skills"
       label="Skills"
       title="Domains & Tools"
-      subtitle="Hover or click a tag to highlight it across all panels"
+      subtitle="Click a skill to ask the chatbot about it · hover to highlight across panels"
       last
     >
       {/* ── Filter bar ──────────────────────────────────────────────────── */}
@@ -138,19 +149,21 @@ export function SkillsSection() {
           style={{
             marginTop:       '1.5rem',
             padding:         '0.75rem 1rem',
-            backgroundColor: 'var(--surface-2)',
-            border:          '1px solid var(--border)',
+            backgroundColor: 'color-mix(in srgb, var(--accent) 6%, var(--surface-2))',
+            border:          '1px solid color-mix(in srgb, var(--accent) 25%, var(--border))',
             borderRadius:    'var(--radius-md)',
             fontSize:        '13px',
             color:           'var(--text-subtle)',
+            display:         'flex',
+            alignItems:      'center',
+            gap:             '0.5rem',
+            flexWrap:        'wrap',
           }}
         >
-          <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{activeTag}</span>
-          {' '}— see the{' '}
-          <span style={{ color: 'var(--text)' }}>Projects</span>
-          {' '}and{' '}
-          <span style={{ color: 'var(--text)' }}>Timeline</span>
-          {' '}sections for work using this skill.
+          <span>
+            <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{activeTag}</span>
+            {' '}— asking the chatbot about this skill now…
+          </span>
         </div>
       )}
     </SectionShell>

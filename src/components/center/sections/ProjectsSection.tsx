@@ -6,8 +6,21 @@ import { featuredProjects }   from '@/data/portfolio'
 import type { ProjectCard }   from '@/data/portfolio'
 import { Tag }                from '@/components/common/Tag'
 import { usePortfolioStore }  from '@/store/portfolioStore'
+import { useBreakpoint }      from '@/lib/useBreakpoint'
+import { AskButton }          from './AskButton'
 
 export function ProjectsSection() {
+  const setChatInputDraft    = usePortfolioStore((s) => s.setChatInputDraft)
+  const setPendingAutoSubmit = usePortfolioStore((s) => s.setPendingAutoSubmit)
+  const setChatOpenMobile    = usePortfolioStore((s) => s.setChatOpenMobile)
+  const { isNarrow }         = useBreakpoint()
+
+  const handleAsk = (prompt: string) => {
+    setChatInputDraft(prompt)
+    setPendingAutoSubmit(true)
+    if (isNarrow) setChatOpenMobile(true)
+  }
+
   return (
     <SectionShell
       id="projects"
@@ -23,7 +36,11 @@ export function ProjectsSection() {
         }}
       >
         {featuredProjects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+          <ProjectCard
+            key={project.id}
+            project={project}
+            onAsk={handleAsk}
+          />
         ))}
       </div>
     </SectionShell>
@@ -32,7 +49,7 @@ export function ProjectsSection() {
 
 // ── Single project card ───────────────────────────────────────────────────────
 
-function ProjectCard({ project }: { project: ProjectCard }) {
+function ProjectCard({ project, onAsk }: { project: ProjectCard; onAsk: (prompt: string) => void }) {
   const articleRef         = useRef<HTMLElement>(null)
   const pulseElementId     = usePortfolioStore((s) => s.pulseElementId)
   const setPulseElementId  = usePortfolioStore((s) => s.setPulseElementId)
@@ -185,11 +202,16 @@ function ProjectCard({ project }: { project: ProjectCard }) {
         ))}
       </ul>
 
-      {/* Tags — REQ-CPI-3: <Tag> participates in cross-panel highlight */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+      {/* Tags + Ask button row */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
         {project.tags.map((tag) => (
           <Tag key={tag} label={tag} variant="project" />
         ))}
+        {project.prompt && (
+          <div style={{ marginLeft: 'auto', paddingLeft: '0.5rem', flexShrink: 0 }}>
+            <AskButton onClick={() => onAsk(project.prompt!)} />
+          </div>
+        )}
       </div>
     </article>
   )

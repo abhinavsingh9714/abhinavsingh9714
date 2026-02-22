@@ -18,8 +18,21 @@ export type PipelineStage = 'embedding' | 'retrieving' | 'generating' | 'complet
 
 export interface Citation {
   /** Matches a project / section DOM id for scroll + pulse */
-  cardId: string
-  score:  number
+  cardId:     string
+  chunkId?:   string
+  docId?:     string
+  title?:     string
+  projectId?: string
+  score:      number
+}
+
+export interface RetrievalChunk {
+  chunkId:    string
+  docId:      string
+  title:      string
+  projectId?: string
+  score:      number
+  snippet:    string
 }
 
 export interface PipelineMetrics {
@@ -29,22 +42,25 @@ export interface PipelineMetrics {
 }
 
 export interface Msg {
-  id:         string
-  role:       'user' | 'assistant'
-  content:    string
-  stage?:     PipelineStage
-  citations?: Citation[]
-  metrics?:   PipelineMetrics
-  error?:     boolean
+  id:               string
+  role:             'user' | 'assistant'
+  content:          string
+  stage?:           PipelineStage
+  citations?:       Citation[]
+  retrievalChunks?: RetrievalChunk[]
+  metrics?:         PipelineMetrics
+  error?:           boolean
 }
 
 // ── Generator event types ─────────────────────────────────────────────────────
 
 export type ChatEvent =
-  | { type: 'stage';   stage:   PipelineStage }
-  | { type: 'token';   token:   string         }
-  | { type: 'done';    citations: Citation[]; metrics: PipelineMetrics }
-  | { type: 'error';   message: string         }
+  | { type: 'stage';             stage: PipelineStage; ms?: number                  }
+  | { type: 'token';             token: string                                       }
+  | { type: 'retrieval_results'; chunks: RetrievalChunk[]                            }
+  | { type: 'citations';         citations: Citation[]                               }
+  | { type: 'done';              citations: Citation[]; metrics: PipelineMetrics     }
+  | { type: 'error';             message: string                                     }
 
 // ── Deterministic mock response table ────────────────────────────────────────
 // Each entry: keyword triggers → { content, citations[] }

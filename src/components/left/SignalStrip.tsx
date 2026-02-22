@@ -7,17 +7,17 @@ import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
 const PROFILE = {
   initials:  'AS',
-  name:      'Abhinav Singh',
+  name:      'Abhinav Singh Chauhan',
   role:      'ML Engineer',
   education: 'M.S. Data Science · UMD',
-  tagline:   'Building production ML systems that think, retrieve, and explain.',
+  tagline:   'Building production ML systems that think, retrieve, execute, and explain.',
 }
 
 /** Metrics animate from 0 → target on mount */
-const METRICS: { label: string; value: number; suffix: string }[] = [
-  { label: 'YOE',         value: 5,   suffix: '+'  },
-  { label: 'Projects',    value: 10,  suffix: '+'  },
-  { label: 'Accuracy',    value: 90,  suffix: '%'  },
+const METRICS = [
+  { label: 'Years Experience',   value: 5,  suffix: '+' },
+  { label: 'AI Systems Built',   value: 8,  suffix: '+' },
+  { label: 'LLM Pipelines Shipped', value: 6, suffix: '' },
 ]
 
 export type SignalStripLayout = 'sidebar' | 'topbar'
@@ -92,6 +92,12 @@ function SidebarLayout({ reducedMotion }: { reducedMotion: boolean }) {
 
       {/* CTA — pushed to bottom via flex-grow spacer */}
       <div style={{ flexGrow: 1 }} />
+
+      {/* Social links row */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+        <SocialLink href="https://medium.com/@abhinavsingh9714" label="Medium profile" icon={<MediumIcon />} />
+      </div>
+
       <DownloadCTA />
     </div>
   )
@@ -138,6 +144,9 @@ function TopbarLayout({ reducedMotion }: { reducedMotion: boolean }) {
 
       {/* Spacer */}
       <div style={{ flexGrow: 1 }} />
+
+      {/* Medium link */}
+      <SocialLink href="https://medium.com/@abhinavsingh9714" label="Medium profile" icon={<MediumIcon />} compact />
 
       {/* CTA compact */}
       <DownloadCTA compact />
@@ -224,6 +233,63 @@ function MetricInline({ label, value, suffix, reducedMotion }: MetricProps) {
         {label}
       </span>
     </div>
+  )
+}
+
+function MediumIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <path d="M9.025 8c0 2.485-2.02 4.5-4.513 4.5A4.506 4.506 0 0 1 0 8c0-2.486 2.02-4.5 4.512-4.5A4.506 4.506 0 0 1 9.025 8zm4.95 0c0 2.34-1.007 4.236-2.256 4.236-1.248 0-2.255-1.897-2.255-4.236 0-2.34 1.007-4.236 2.255-4.236C12.968 3.764 13.975 5.66 13.975 8zm1.8 0c0 2.096-.316 3.795-.706 3.795-.39 0-.707-1.7-.707-3.795 0-2.096.317-3.795.707-3.795.39 0 .706 1.699.706 3.795z"/>
+    </svg>
+  )
+}
+
+interface SocialLinkProps {
+  href:    string
+  label:   string
+  icon:    React.ReactNode
+  compact?: boolean
+}
+
+function SocialLink({ href, label, icon, compact = false }: SocialLinkProps) {
+  const size = compact ? '28px' : '32px'
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      title={label}
+      style={{
+        display:         'inline-flex',
+        alignItems:      'center',
+        justifyContent:  'center',
+        width:           size,
+        height:          size,
+        borderRadius:    'var(--radius-md)',
+        border:          '1px solid transparent',
+        backgroundColor: 'transparent',
+        color:           'var(--text-muted)',
+        cursor:          'pointer',
+        transition:      'color var(--motion-enter) var(--ease), background-color var(--motion-enter) var(--ease), border-color var(--motion-enter) var(--ease)',
+        textDecoration:  'none',
+        flexShrink:      0,
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget
+        el.style.color           = 'var(--text)'
+        el.style.backgroundColor = 'var(--surface-2)'
+        el.style.borderColor     = 'var(--border)'
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget
+        el.style.color           = 'var(--text-muted)'
+        el.style.backgroundColor = 'transparent'
+        el.style.borderColor     = 'transparent'
+      }}
+    >
+      {icon}
+    </a>
   )
 }
 

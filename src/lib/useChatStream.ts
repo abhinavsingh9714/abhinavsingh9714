@@ -18,7 +18,7 @@
  */
 
 import { useCallback, useRef } from 'react'
-import { useAppStore }         from '@/store'
+import { useAppStore }          from '@/store'
 import { streamAssistant, uid } from '@/lib/chatReducer'
 import { decodeSSELine }        from '@/lib/chatProtocol'
 import type { Msg, ChatEvent }  from '@/lib/chatReducer'
@@ -149,6 +149,27 @@ export function useChatStream() {
               )
               break
 
+            case 'retrieval_results':
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, retrievalChunks: event.chunks }
+                    : m
+                )
+              )
+              break
+
+            case 'citations':
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, citations: event.citations }
+                    : m
+                )
+              )
+              setActiveCitations(event.citations.map((c) => c.cardId))
+              break
+
             case 'done':
               setMessages((prev) =>
                 prev.map((m) =>
@@ -156,13 +177,16 @@ export function useChatStream() {
                     ? {
                         ...m,
                         stage:     'complete',
-                        citations: event.citations,
+                        citations: m.citations?.length ? m.citations : event.citations,
                         metrics:   event.metrics,
                       }
                     : m
                 )
               )
-              setActiveCitations(event.citations.map((c) => c.cardId))
+              // Ensure activeCitations is set if citations event wasn't sent
+              if (event.citations.length > 0) {
+                setActiveCitations(event.citations.map((c) => c.cardId))
+              }
               setIsStreaming(false)
               abortRef.current = null
               break

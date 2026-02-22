@@ -152,10 +152,6 @@ export function ChatUI({ showClose = false, onClose }: ChatUIProps) {
       <div
         style={{
           flexShrink:      0,
-          display:         'flex',
-          alignItems:      'center',
-          justifyContent:  'space-between',
-          padding:         '0.625rem 1rem',
           borderBottom:    '1px solid var(--border)',
           position:        'sticky',
           top:             0,
@@ -163,64 +159,136 @@ export function ChatUI({ showClose = false, onClose }: ChatUIProps) {
           zIndex:          2,
         }}
       >
-        <span
-          className="font-body"
-          style={{
-            fontSize:      '11px',
-            fontWeight:    600,
-            letterSpacing: '0.07em',
-            textTransform: 'uppercase',
-            color:         'var(--text-muted)',
-          }}
-        >
-          Ask me anything
-        </span>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {/* Engineer view toggle */}
-          <button
-            onClick={toggleEngineer}
-            aria-pressed={engineerView}
-            title="Toggle engineer view — shows pipeline stages"
-            className="font-body"
+        {/* RAG intro banner */}
+        {!hasMessages && (
+          <div
             style={{
-              fontSize:        '11px',
-              fontWeight:      500,
-              padding:         '3px 9px',
-              borderRadius:    'var(--radius-pill)',
-              border:          `1px solid ${engineerView ? 'var(--accent)' : 'var(--border)'}`,
-              backgroundColor: engineerView ? 'var(--accent-weak)' : 'transparent',
-              color:           engineerView ? 'var(--accent)'      : 'var(--text-subtle)',
-              cursor:          'pointer',
-              transition:      'all var(--motion-enter) var(--ease)',
+              padding:         '0.75rem 1rem 0.625rem',
+              borderBottom:    '1px solid var(--border)',
+              background:      'linear-gradient(135deg, color-mix(in srgb, var(--accent) 6%, var(--surface)), var(--surface))',
             }}
           >
-            ⚙ Eng
-          </button>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem' }}>
+              <div
+                style={{
+                  flexShrink:      0,
+                  width:           '28px',
+                  height:          '28px',
+                  borderRadius:    'var(--radius-md)',
+                  backgroundColor: 'var(--accent-weak)',
+                  border:          '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
+                  display:         'flex',
+                  alignItems:      'center',
+                  justifyContent:  'center',
+                  fontSize:        '13px',
+                }}
+              >
+                ✦
+              </div>
+              <div style={{ flex: '1 1 0', minWidth: 0 }}>
+                <p
+                  className="font-heading"
+                  style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: 'var(--text)', lineHeight: 1.3 }}
+                >
+                  Mini-RAG Portfolio Assistant
+                </p>
+                <p
+                  className="font-body"
+                  style={{ margin: '3px 0 0', fontSize: '11px', color: 'var(--text-subtle)', lineHeight: 1.5 }}
+                >
+                  Embeds your question → retrieves the most relevant chunks from the knowledge base → generates a grounded answer. Toggle{' '}
+                  <button
+                    onClick={toggleEngineer}
+                    className="font-body"
+                    style={{
+                      display:         'inline',
+                      background:      'none',
+                      border:          'none',
+                      padding:         0,
+                      fontSize:        'inherit',
+                      color:           'var(--accent)',
+                      cursor:          'pointer',
+                      textDecoration:  'underline',
+                      textUnderlineOffset: '2px',
+                    }}
+                  >
+                    ⚙ Eng
+                  </button>{' '}
+                  to see real retrieval scores and chunks.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
-          {/* Close button (modal only) */}
-          {showClose && (
+        {/* Controls row */}
+        <div
+          style={{
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'space-between',
+            padding:        '0.5rem 1rem',
+          }}
+        >
+          <span
+            className="font-body"
+            style={{
+              fontSize:      '11px',
+              fontWeight:    600,
+              letterSpacing: '0.07em',
+              textTransform: 'uppercase',
+              color:         'var(--text-muted)',
+            }}
+          >
+            Ask me anything
+          </span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {/* Engineer view toggle */}
             <button
-              onClick={onClose}
-              aria-label="Close chat"
+              onClick={toggleEngineer}
+              aria-pressed={engineerView}
+              title="Toggle engineer view — shows pipeline stages and retrieved chunks"
+              className="font-body"
               style={{
-                display:         'flex',
-                alignItems:      'center',
-                justifyContent:  'center',
-                width:           '28px',
-                height:          '28px',
-                borderRadius:    'var(--radius-md)',
-                border:          '1px solid var(--border)',
-                backgroundColor: 'transparent',
-                color:           'var(--text-muted)',
+                fontSize:        '11px',
+                fontWeight:      500,
+                padding:         '3px 9px',
+                borderRadius:    'var(--radius-pill)',
+                border:          `1px solid ${engineerView ? 'var(--accent)' : 'var(--border)'}`,
+                backgroundColor: engineerView ? 'var(--accent-weak)' : 'transparent',
+                color:           engineerView ? 'var(--accent)'      : 'var(--text-subtle)',
                 cursor:          'pointer',
-                fontSize:        '16px',
-                lineHeight:      1,
+                transition:      'all var(--motion-enter) var(--ease)',
               }}
             >
-              ×
+              ⚙ Eng
             </button>
-          )}
+
+            {/* Close button (modal only) */}
+            {showClose && (
+              <button
+                onClick={onClose}
+                aria-label="Close chat"
+                style={{
+                  display:         'flex',
+                  alignItems:      'center',
+                  justifyContent:  'center',
+                  width:           '28px',
+                  height:          '28px',
+                  borderRadius:    'var(--radius-md)',
+                  border:          '1px solid var(--border)',
+                  backgroundColor: 'transparent',
+                  color:           'var(--text-muted)',
+                  cursor:          'pointer',
+                  fontSize:        '16px',
+                  lineHeight:      1,
+                }}
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

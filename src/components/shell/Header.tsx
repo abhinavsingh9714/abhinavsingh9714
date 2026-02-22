@@ -9,13 +9,15 @@ import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 const NAV_PILLS: { label: string; section: NavSection }[] = [
   { label: 'Projects', section: 'projects' },
   { label: 'Story',    section: 'story'    },
-  { label: 'Chat',     section: 'chat'     },
+  { label: 'Writing',  section: 'writing'  },
+  { label: 'Skills',     section: 'chat'     },
 ]
 
 // Map NavSection → the DOM id used in CenterPanel
 const SECTION_DOM_IDS: Record<NavSection, string> = {
   projects: 'projects',
   story:    'story',
+  writing:  'writing',
   chat:     'chat-anchor',
 }
 
@@ -91,7 +93,7 @@ const ICON_BUTTONS = [
   {
     id:    'linkedin',
     label: 'LinkedIn profile',
-    href:  'https://linkedin.com/in/abhinav-singh-97',
+    href:  'https://www.linkedin.com/in/abhinavsingh9714/',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
         <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708

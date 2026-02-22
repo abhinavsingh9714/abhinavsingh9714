@@ -1,85 +1,192 @@
 /**
- * POST /api/chat
+ * POST /api/chat — Mini-RAG pipeline
  *
- * Request body  : { query: string; ui_state?: Record<string, unknown> }
- * Response      : text/event-stream (chunked SSE)
+ * Real pipeline stages (no faking):
+ *   1. Embed query   → text-embedding-3-small
+ *   2. Cosine search → top-K chunks from kb_index.json
+ *   3. LLM generate  → gpt-4o-mini streaming
  *
- * Each SSE frame contains a JSON-encoded ChatEvent:
- *   { type: "stage",   stage: "embedding" | "retrieving" | "generating" }
- *   { type: "token",   token: string }
- *   { type: "done",    citations: Citation[], metrics: PipelineMetrics }
- *   { type: "error",   message: string }
+ * SSE event stream:
+ *   stage:             { stage: 'embedding'|'retrieving'|'generating', ms: number }
+ *   retrieval_results: { chunks: RetrievalChunk[] }
+ *   token:             { token: string }
+ *   citations:         { citations: Citation[] }
+ *   done:              { citations: Citation[], metrics: PipelineMetrics }
+ *   error:             { message: string }
  */
 
-import { NextRequest }   from 'next/server'
-import OpenAI            from 'openai'
-import { encodeSSE }     from '@/lib/chatProtocol'
-import { resumeSections } from '@/data/resume_kb'
+import { NextRequest } from 'next/server'
+import OpenAI          from 'openai'
+import * as fs         from 'fs'
+import * as path       from 'path'
+import { encodeSSE }   from '@/lib/chatProtocol'
+import type { ChatEvent, Citation, PipelineMetrics, RetrievalChunk } from '@/lib/chatReducer'
 import type { ChatRequestBody } from '@/lib/chatProtocol'
-import type { ChatEvent, Citation, PipelineMetrics } from '@/lib/chatReducer'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
-// ── Build system prompt from resume KB ────────────────────────────────────────
+// ── KB index types ─────────────────────────────────────────────────────────────
 
-function buildSystemPrompt(): string {
-  const { experience, projects, skills, education } = resumeSections
-
-  const fmt = (section: typeof experience) =>
-    section.map((c) =>
-      `• ${c.title} @ ${c.org} (${c.dates ?? ''})\n  ${c.bullets.join('\n  ')}`
-    ).join('\n')
-
-  return `You are Abhinav Singh's portfolio assistant — a helpful, concise chatbot embedded in his interactive resume.
-Answer questions about Abhinav's experience, projects, skills, and education based ONLY on the information below.
-When you cite a specific project or experience, end your answer with a JSON block on its own line in this exact format:
-CITATIONS:{"ids":["<card-id>",...]}
-Use these card IDs: experience: exp-1..exp-6 | projects: proj-1..proj-4 | skills: skill-ml, skill-data, skill-swe | education: edu-1..edu-3
-Keep answers concise and recruiter-friendly. Do not make up anything not in the resume data.
-
-=== EXPERIENCE ===
-${fmt(experience)}
-
-=== PROJECTS ===
-${fmt(projects)}
-
-=== SKILLS ===
-${fmt(skills)}
-
-=== EDUCATION ===
-${fmt(education)}`
+interface KBChunk {
+  chunkId:    string
+  docId:      string
+  title:      string
+  type:       'resume' | 'project' | 'story' | 'other'
+  projectId?: string
+  tags:       string[]
+  text:       string
+  embedding:  number[]
 }
 
-const SYSTEM_PROMPT = buildSystemPrompt()
-
-// ── Citation card-id → score mapping (relevance heuristic) ───────────────────
-
-const CARD_SCORES: Record<string, number> = {
-  'exp-1': 0.97, 'exp-2': 0.94, 'exp-3': 0.91, 'exp-4': 0.88,
-  'exp-5': 0.82, 'exp-6': 0.80,
-  'proj-1': 0.95, 'proj-2': 0.93, 'proj-3': 0.90, 'proj-4': 0.87,
-  'skill-ml': 0.92, 'skill-data': 0.89, 'skill-swe': 0.86,
-  'edu-1': 0.91, 'edu-2': 0.88, 'edu-3': 0.82,
+interface KBIndex {
+  version:        string
+  embeddingModel: string
+  createdAt:      string
+  chunks:         KBChunk[]
 }
 
-function parseCitations(text: string): { clean: string; citations: Citation[] } {
-  const marker = 'CITATIONS:'
-  const idx    = text.lastIndexOf(marker)
-  if (idx === -1) return { clean: text.trim(), citations: [] }
+// ── Module-level KB cache ──────────────────────────────────────────────────────
 
-  const before = text.slice(0, idx).trim()
-  const jsonStr = text.slice(idx + marker.length).trim()
+let _kbIndex: KBIndex | null = null
 
-  try {
-    const parsed = JSON.parse(jsonStr) as { ids?: string[] }
-    const citations: Citation[] = (parsed.ids ?? []).map((id) => ({
-      cardId: id,
-      score:  CARD_SCORES[id] ?? 0.8,
-    }))
-    return { clean: before, citations }
-  } catch {
-    return { clean: before, citations: [] }
+function loadKBIndex(): KBIndex {
+  if (_kbIndex) return _kbIndex
+
+  const indexPath = path.join(process.cwd(), 'public', 'kb_index.json')
+  if (!fs.existsSync(indexPath)) {
+    throw new Error(
+      'kb_index.json not found. Run `npm run kb:build` to generate it.',
+    )
   }
+
+  const raw = fs.readFileSync(indexPath, 'utf-8')
+  _kbIndex  = JSON.parse(raw) as KBIndex
+  return _kbIndex
+}
+
+// ── Cosine similarity ──────────────────────────────────────────────────────────
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  let dot = 0, magA = 0, magB = 0
+  for (let i = 0; i < a.length; i++) {
+    dot  += a[i] * b[i]
+    magA += a[i] * a[i]
+    magB += b[i] * b[i]
+  }
+  const denom = Math.sqrt(magA) * Math.sqrt(magB)
+  return denom === 0 ? 0 : dot / denom
+}
+
+function topKChunks(
+  queryEmbedding: number[],
+  chunks:         KBChunk[],
+  k:              number,
+): Array<KBChunk & { score: number }> {
+  return chunks
+    .map((chunk) => ({ ...chunk, score: cosineSimilarity(queryEmbedding, chunk.embedding) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, k)
+}
+
+// ── Prompt builder ────────────────────────────────────────────────────────────
+
+function buildPrompt(retrieved: Array<KBChunk & { score: number }>): string {
+  const contextBlocks = retrieved.map((c) => {
+    const meta = c.projectId
+      ? `chunkId: ${c.chunkId} | type: ${c.type} | project: ${c.title} | projectId: ${c.projectId}`
+      : `chunkId: ${c.chunkId} | type: ${c.type} | doc: ${c.title}`
+    return `[${meta}]\n${c.text}`
+  }).join('\n\n---\n\n')
+
+  return `You are Abhinav Singh’s portfolio AI assistant.
+
+Your role is to clearly and confidently explain his experience, projects, and technical decisions to recruiters and hiring managers.
+
+Core profile:
+- ML Engineer focused on GenAI systems, RAG pipelines, structured LLM workflows, and production-grade AI architecture.
+- M.S. in Data Science, University of Maryland (GPA 3.92, graduating May 2026).
+- Open to full-time ML/AI engineering roles.
+
+Behavioral constraints:
+- Answer ONLY using the provided context.
+- Do NOT invent facts, tools, metrics, or outcomes.
+- If information is not in context, say:
+  “That detail isn’t specified in the portfolio.”
+- Be concise but structured.
+- Prefer bullet points for clarity.
+- Avoid hype language.
+- Avoid vague claims (e.g., “cutting-edge”, “revolutionary”).
+- Emphasize impact, architecture, and engineering decisions.
+- When relevant, connect outcomes to design choices (e.g., why RAG was used, why a certain architecture was chosen).
+
+Narrative framing rules:
+- Lead with impact or outcome when describing a project.
+- Highlight system design thinking over tool usage.
+- Frame experience in terms of ownership, architectural reasoning, and production readiness.
+- Maintain calm, confident, technical tone.
+- Write as if explaining to a senior engineer or hiring manager.
+
+Citation discipline:
+- Base all statements strictly on retrieved context blocks.
+- Do not claim experience outside the retrieved chunks.
+- Do not fabricate metrics.
+
+Formatting:
+- Use short paragraphs or bullet points.
+- Avoid long prose blocks.
+- Maximum 6–8 sentences unless explicitly asked for deep detail.
+
+[CONTEXT]
+${contextBlocks}
+[/CONTEXT]`
+}
+
+// ── Citation builder (deterministic — no LLM guessing) ───────────────────────
+
+const CITATION_SCORE_THRESHOLD = 0.30
+const CITATION_ALWAYS_TOP_N    = 2
+
+function buildCitations(retrieved: Array<KBChunk & { score: number }>): Citation[] {
+  const cited = new Map<string, Citation>()
+
+  // Always include the top N
+  for (const chunk of retrieved.slice(0, CITATION_ALWAYS_TOP_N)) {
+    const cardId = chunk.projectId ?? chunk.docId
+    if (!cited.has(cardId) || (cited.get(cardId)!.score ?? 0) < chunk.score) {
+      cited.set(cardId, {
+        cardId,
+        chunkId:   chunk.chunkId,
+        docId:     chunk.docId,
+        title:     chunk.title,
+        projectId: chunk.projectId,
+        score:     chunk.score,
+      })
+    }
+  }
+
+  // Add others above threshold
+  for (const chunk of retrieved.slice(CITATION_ALWAYS_TOP_N)) {
+    if (chunk.score < CITATION_SCORE_THRESHOLD) continue
+    const cardId = chunk.projectId ?? chunk.docId
+    if (!cited.has(cardId) || (cited.get(cardId)!.score ?? 0) < chunk.score) {
+      cited.set(cardId, {
+        cardId,
+        chunkId:   chunk.chunkId,
+        docId:     chunk.docId,
+        title:     chunk.title,
+        projectId: chunk.projectId,
+        score:     chunk.score,
+      })
+    }
+  }
+
+  // Sort: projectId citations first (those drive CPI-1 scroll), then by score desc
+  return [...cited.values()].sort((a, b) => {
+    if (a.projectId && !b.projectId) return -1
+    if (!a.projectId && b.projectId) return  1
+    return (b.score ?? 0) - (a.score ?? 0)
+  })
 }
 
 // ── Route handler ──────────────────────────────────────────────────────────────
@@ -87,28 +194,39 @@ function parseCitations(text: string): { clean: string; citations: Citation[] } 
 export async function POST(req: NextRequest) {
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'OPENAI_API_KEY is not configured' }), {
-      status:  500,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ error: 'OPENAI_API_KEY is not configured' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
+    )
   }
 
   let body: ChatRequestBody
   try {
     body = (await req.json()) as ChatRequestBody
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      status:  400,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ error: 'Invalid JSON body' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    )
   }
 
   const query = body.query?.trim()
   if (!query) {
-    return new Response(JSON.stringify({ error: '`query` is required' }), {
-      status:  400,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ error: '`query` is required' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    )
+  }
+
+  // Load KB — fail fast if not built yet
+  let kbIndex: KBIndex
+  try {
+    kbIndex = loadKBIndex()
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ error: (err as Error).message }),
+      { status: 503, headers: { 'Content-Type': 'application/json' } },
+    )
   }
 
   const client = new OpenAI({ apiKey })
@@ -119,15 +237,47 @@ export async function POST(req: NextRequest) {
       const enc = (e: ChatEvent) => controller.enqueue(encodeSSE(e))
 
       try {
+        // ── Stage 1: Embed query ────────────────────────────────────────────
         const t0 = Date.now()
-
         enc({ type: 'stage', stage: 'embedding' })
+
+        const embedRes = await client.embeddings.create(
+          { model: 'text-embedding-3-small', input: query },
+          { signal: ac.signal },
+        )
+        const queryEmbedding = embedRes.data[0].embedding
+        const embedMs        = Date.now() - t0
+
+        enc({ type: 'stage', stage: 'embedding', ms: embedMs } as ChatEvent)
+
+        // ── Stage 2: Retrieve top-K chunks ──────────────────────────────────
+        if (ac.signal.aborted) return
+        const t1 = Date.now()
         enc({ type: 'stage', stage: 'retrieving' })
+
+        const TOP_K    = 6
+        const retrieved = topKChunks(queryEmbedding, kbIndex.chunks, TOP_K)
+        const retrieveMs = Date.now() - t1
+
+        // Build retrieval result events (for Engineer View)
+        const retrievalChunks: RetrievalChunk[] = retrieved.map((c) => ({
+          chunkId:   c.chunkId,
+          docId:     c.docId,
+          title:     c.title,
+          projectId: c.projectId,
+          score:     c.score,
+          snippet:   c.text.slice(0, 160).replace(/\s+/g, ' ').trim(),
+        }))
+
+        enc({ type: 'retrieval_results', chunks: retrievalChunks })
+        enc({ type: 'stage', stage: 'retrieving', ms: retrieveMs } as ChatEvent)
+
+        // ── Stage 3: Generate ───────────────────────────────────────────────
+        if (ac.signal.aborted) return
+        const t2 = Date.now()
         enc({ type: 'stage', stage: 'generating' })
 
-        const embedMs    = Date.now() - t0
-        const retrieveMs = embedMs + 20
-        const genStart   = Date.now()
+        const systemPrompt = buildPrompt(retrieved)
 
         const completion = await client.chat.completions.create(
           {
@@ -135,37 +285,28 @@ export async function POST(req: NextRequest) {
             stream:     true,
             max_tokens: 512,
             messages: [
-              { role: 'system',  content: SYSTEM_PROMPT },
-              { role: 'user',    content: query },
+              { role: 'system', content: systemPrompt },
+              { role: 'user',   content: query },
             ],
           },
           { signal: ac.signal },
         )
 
-        let fullText = ''
-
         for await (const chunk of completion) {
           if (ac.signal.aborted) break
           const token = chunk.choices[0]?.delta?.content ?? ''
-          if (!token) continue
-          fullText += token
+          if (token) enc({ type: 'token', token })
         }
 
         if (!ac.signal.aborted) {
-          // Separate the citation block from the visible answer text
-          const { clean, citations } = parseCitations(fullText)
+          const generateMs = Date.now() - t2
 
-          // Stream the clean answer text as tokens
-          for (const word of clean.split(/(\s+)/)) {
-            if (word) enc({ type: 'token', token: word })
-          }
+          // Deterministic citations — no LLM guessing
+          const citations = buildCitations(retrieved)
 
-          const metrics: PipelineMetrics = {
-            embedMs,
-            retrieveMs,
-            generateMs: Date.now() - genStart,
-          }
+          enc({ type: 'citations', citations })
 
+          const metrics: PipelineMetrics = { embedMs, retrieveMs, generateMs }
           enc({ type: 'done', citations, metrics })
         }
       } catch (err) {
