@@ -41,64 +41,75 @@ function SidebarLayout({ reducedMotion }: { reducedMotion: boolean }) {
       style={{
         display:         'flex',
         flexDirection:   'column',
-        gap:             '1.25rem',
-        padding:         '1.5rem 1.25rem',
         height:          '100%',
+        padding:         '1.25rem 1rem',
         backgroundColor: 'var(--surface)',
       }}
     >
-      {/* Avatar + identity */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', textAlign: 'center' }}>
-        <Avatar size={64} />
+      {/* ── Identity widget box ─────────────────────────────────────────────── */}
+      <div
+        style={{
+          borderRadius:    'var(--radius-lg, 12px)',
+          border:          '1px solid color-mix(in srgb, var(--border) 70%, transparent)',
+          backgroundColor: 'color-mix(in srgb, var(--surface-2) 60%, transparent)',
+          padding:         '1.25rem 1rem',
+          display:         'flex',
+          flexDirection:   'column',
+          alignItems:      'center',
+          gap:             '0.875rem',
+          textAlign:       'center',
+        }}
+      >
+        {/* Avatar */}
+        <Avatar size={160} />
+
+        {/* Role + education */}
         <div>
-          <p className="font-heading" style={{ fontSize: '1.1rem', color: 'var(--text)', lineHeight: 1.2 }}>
-            {PROFILE.name}
-          </p>
-          <p className="font-body" style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 500, marginTop: '3px' }}>
+          <p className="font-body" style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 600, lineHeight: 1 }}>
             {PROFILE.role}
           </p>
           <p className="font-body" style={{ fontSize: '11px', color: 'var(--text-subtle)', marginTop: '4px' }}>
             {PROFILE.education}
           </p>
         </div>
+
+        {/* Divider */}
+        <Divider />
+
+        {/* Metric counters */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', width: '100%' }}>
+          {METRICS.map((m) => (
+            <MetricCell key={m.label} {...m} reducedMotion={reducedMotion} />
+          ))}
+        </div>
+
+        {/* Divider */}
+        <Divider />
+
+        {/* Social icons row */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.375rem' }}>
+          <SocialLink href="https://github.com/abhinavsingh9714"           label="GitHub"   icon={<GitHubIcon />} />
+          <SocialLink href="https://www.linkedin.com/in/abhinavsingh9714/" label="LinkedIn" icon={<LinkedInIcon />} />
+          <SocialLink href="https://medium.com/@abhinavsingh9714"          label="Medium"   icon={<MediumIcon />} />
+          <SocialLink href="mailto:abhinavschauhan14@gmail.com"             label="Email"    icon={<EmailIcon />} />
+        </div>
       </div>
 
-      {/* Divider */}
-      <Divider />
-
-      {/* Metric counters */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-        {METRICS.map((m) => (
-          <MetricCell key={m.label} {...m} reducedMotion={reducedMotion} />
-        ))}
-      </div>
-
-      {/* Divider */}
-      <Divider />
-
-      {/* Tagline */}
-      <p
-        className="font-body"
-        style={{
-          fontSize:   '12px',
-          lineHeight: 1.6,
-          color:      'var(--text-subtle)',
-          fontStyle:  'italic',
-          textAlign:  'center',
-        }}
-      >
-        &ldquo;{PROFILE.tagline}&rdquo;
-      </p>
-
-      {/* CTA — pushed to bottom via flex-grow spacer */}
+      {/* ── Breathing room ──────────────────────────────────────────────────── */}
       <div style={{ flexGrow: 1 }} />
 
-      {/* Social links row */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
-        <SocialLink href="https://medium.com/@abhinavsingh9714" label="Medium profile" icon={<MediumIcon />} />
+      {/* ── Sign-off + CTA pinned to bottom ─────────────────────────────────── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p
+            className="font-body"
+            style={{ fontSize: '11px', fontStyle: 'italic', color: 'var(--text-subtle)', lineHeight: 1.65, letterSpacing: '0.01em' }}
+          >
+            Systems over demos.<br />Deterministic over hype.
+          </p>
+        </div>
+        <DownloadCTA />
       </div>
-
-      <DownloadCTA />
     </div>
   )
 }
@@ -159,32 +170,22 @@ function TopbarLayout({ reducedMotion }: { reducedMotion: boolean }) {
 function Avatar({ size }: { size: number }) {
   const r = size * 0.22
   return (
-    <div
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/avatar.jpg"
+      alt="Abhinav Singh"
       aria-hidden
       style={{
-        width:           `${size}px`,
-        height:          `${size}px`,
-        borderRadius:    `${r}px`,
-        backgroundColor: 'var(--accent)',
-        display:         'flex',
-        alignItems:      'center',
-        justifyContent:  'center',
-        flexShrink:      0,
-        border:          '2px solid color-mix(in srgb, var(--accent) 35%, transparent)',
+        width:        `${size}px`,
+        height:       `${size}px`,
+        borderRadius: `${r}px`,
+        objectFit:    'cover',
+        objectPosition: 'center top',
+        flexShrink:   0,
+        border:       '2px solid color-mix(in srgb, var(--accent) 35%, transparent)',
+        display:      'block',
       }}
-    >
-      <span
-        className="font-heading"
-        style={{
-          fontSize:   `${size * 0.34}px`,
-          color:      'var(--bg)',
-          lineHeight: 1,
-          letterSpacing: '-0.02em',
-        }}
-      >
-        {PROFILE.initials}
-      </span>
-    </div>
+    />
   )
 }
 
@@ -214,7 +215,7 @@ function MetricCell({ label, value, suffix, reducedMotion }: MetricProps) {
       </p>
       <p
         className="font-body"
-        style={{ fontSize: '10px', color: 'var(--text-subtle)', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.06em' }}
+        style={{ fontSize: '9px', color: 'var(--text-subtle)', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.07em' }}
       >
         {label}
       </p>
@@ -236,10 +237,34 @@ function MetricInline({ label, value, suffix, reducedMotion }: MetricProps) {
   )
 }
 
+function GitHubIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+    </svg>
+  )
+}
+
+function LinkedInIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+    </svg>
+  )
+}
+
 function MediumIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
       <path d="M9.025 8c0 2.485-2.02 4.5-4.513 4.5A4.506 4.506 0 0 1 0 8c0-2.486 2.02-4.5 4.512-4.5A4.506 4.506 0 0 1 9.025 8zm4.95 0c0 2.34-1.007 4.236-2.256 4.236-1.248 0-2.255-1.897-2.255-4.236 0-2.34 1.007-4.236 2.255-4.236C12.968 3.764 13.975 5.66 13.975 8zm1.8 0c0 2.096-.316 3.795-.706 3.795-.39 0-.707-1.7-.707-3.795 0-2.096.317-3.795.707-3.795.39 0 .706 1.699.706 3.795z"/>
+    </svg>
+  )
+}
+
+function EmailIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+      <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.708 2.825L15 11.105V5.383zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741zM1 11.105l4.708-2.897L1 5.383v5.722z"/>
     </svg>
   )
 }

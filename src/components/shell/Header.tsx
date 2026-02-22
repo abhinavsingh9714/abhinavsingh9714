@@ -154,54 +154,22 @@ export function Header() {
         borderBottom:         '1px solid var(--border)',
       }}
     >
-      {/* ── Left: monogram + name ─────────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 min-w-0 flex-none">
-        {/* Monogram badge */}
-        <div
-          aria-hidden
+      {/* ── Left: typographic monogram ───────────────────────────────────── */}
+      <div className="flex items-center flex-none">
+        <span
+          className="font-heading"
+          aria-label="Abhinav Singh Chauhan"
           style={{
-            width:           '32px',
-            height:          '32px',
-            borderRadius:    'var(--radius-md)',
-            backgroundColor: 'var(--accent)',
-            display:         'flex',
-            alignItems:      'center',
-            justifyContent:  'center',
-            flexShrink:      0,
+            fontSize:      '1.05rem',
+            fontWeight:    400,
+            fontStyle:     'italic',
+            color:         'var(--text)',
+            letterSpacing: '-0.03em',
+            lineHeight:    1,
+            userSelect:    'none',
           }}
         >
-          <span
-            className="font-heading"
-            style={{ fontSize: '14px', color: 'var(--bg)', lineHeight: 1, letterSpacing: '-0.02em' }}
-          >
-            AS
-          </span>
-        </div>
-
-        {/* Name */}
-        <span
-          className="font-heading hidden sm:block"
-          style={{ fontSize: '1rem', color: 'var(--text)', lineHeight: 1, whiteSpace: 'nowrap' }}
-        >
-          Abhinav Singh
-        </span>
-
-        {/* Role badge */}
-        <span
-          className="hidden lg:inline-flex items-center font-body"
-          style={{
-            padding:         '2px 8px',
-            fontSize:        '11px',
-            fontWeight:      500,
-            letterSpacing:   '0.03em',
-            backgroundColor: 'var(--accent-weak)',
-            color:           'var(--accent)',
-            borderRadius:    'var(--radius-sm)',
-            border:          '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
-            whiteSpace:      'nowrap',
-          }}
-        >
-          ML Engineer
+          ASC
         </span>
       </div>
 
