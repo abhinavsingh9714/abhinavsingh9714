@@ -89,6 +89,18 @@ function topKChunks(
     .slice(0, k)
 }
 
+function buildRetrievalQuery(query: string): string {
+  if (
+    /interview|hire|hiring|recruiter|summarize|summary|strongest|small ai team|best fit|why should/i.test(query)
+  ) {
+    return `${query}
+
+High-signal portfolio concepts to retrieve: TAAI Labs Neuron RAG GenAI AWS Pinecone DynamoDB Qwen NIST grounded answers architecture review 90% Jira backlog generator LangChain Pydantic Jira API 70% planning overhead EdTech TULNA LangGraph multi-agent video evaluator 95% manual review reduction CLIP FAISS visual search FastAPI production ML systems backend ownership evaluation pipelines measurable impact.`
+  }
+
+  return query
+}
+
 // ── Prompt builder ────────────────────────────────────────────────────────────
 
 function buildPrompt(retrieved: Array<KBChunk & { score: number }>): string {
@@ -101,7 +113,7 @@ function buildPrompt(retrieved: Array<KBChunk & { score: number }>): string {
 
   return `You are Abhinav Singh’s portfolio AI assistant.
 
-Your role is to clearly and confidently explain his experience, projects, and technical decisions to recruiters and hiring managers.
+Your role is to explain his experience, projects, and technical decisions to recruiters, hiring managers, founders, and technical interviewers.
 
 Core profile:
 - ML Engineer focused on GenAI systems, RAG pipelines, structured LLM workflows, and production-grade AI architecture.
@@ -116,6 +128,8 @@ Behavioral constraints:
 - Be concise but structured.
 - Prefer bullet points for clarity.
 - Avoid hype language.
+- Do not use markdown bold.
+- Do not use inflated phrases like "exceptional", "revolutionary", "extensive", or "impressive".
 - Avoid vague claims (e.g., “cutting-edge”, “revolutionary”).
 - Emphasize impact, architecture, and engineering decisions.
 - When relevant, connect outcomes to design choices (e.g., why RAG was used, why a certain architecture was chosen).
@@ -126,6 +140,7 @@ Narrative framing rules:
 - Frame experience in terms of ownership, architectural reasoning, and production readiness.
 - Maintain calm, confident, technical tone.
 - Write as if explaining to a senior engineer or hiring manager.
+- If asked why to interview him, lead with production AI systems, backend ownership, retrieval/orchestration/evaluation, and measurable impact.
 
 Citation discipline:
 - Base all statements strictly on retrieved context blocks.
@@ -136,6 +151,7 @@ Formatting:
 - Use short paragraphs or bullet points.
 - Avoid long prose blocks.
 - Maximum 6–8 sentences unless explicitly asked for deep detail.
+- Prefer 3–5 bullets for broad recruiter questions.
 
 [CONTEXT]
 ${contextBlocks}
@@ -241,8 +257,9 @@ export async function POST(req: NextRequest) {
         const t0 = Date.now()
         enc({ type: 'stage', stage: 'embedding' })
 
+        const retrievalQuery = buildRetrievalQuery(query)
         const embedRes = await client.embeddings.create(
-          { model: 'text-embedding-3-small', input: query },
+          { model: 'text-embedding-3-small', input: retrievalQuery },
           { signal: ac.signal },
         )
         const queryEmbedding = embedRes.data[0].embedding
